@@ -31,10 +31,9 @@ from . import VimEscape, VimClient, VimClientError
 
 
 def get_vim_args():
-    """Return the Vim command-line arguments.
+    """Return Vim command-line arguments.
 
-    Ignore the Vim command-line options (like '-d' or '--diff').
-    for backward compatiblity.
+    Ignore the options (like '-d' or '--diff') for backward compatiblity.
 
     """
     vim_args = []
@@ -59,11 +58,12 @@ def cli_edit():
     Connect to a Vim server and edit a file.
 
     """
+    cmdname = os.path.basename(sys.argv[0])
     vim_args = get_vim_args()
 
     for filename in vim_args:
         if not os.path.exists(filename):
-            print(f"{sys.argv[0]}: {filename}: "
+            print(f"{cmdname}: {filename}: "
                   "no such file or directory",
                   file=sys.stderr)
             sys.exit(1)
@@ -74,10 +74,9 @@ def cli_edit():
 
     try:
         vim_client = VimClient(".*")
-        vim_client.ping()
         vim_client.edit(vim_args)
     except VimClientError as err:
-        print(f"{sys.argv[0]}: fatal: {err}.", file=sys.stderr)
+        print(f"{cmdname}: fatal: {err}.", file=sys.stderr)
         sys.exit(1)
 
 
@@ -87,17 +86,18 @@ def cli_diff():
     Connect to a Vim server and show the difference between two files.
 
     """
+    cmdname = os.path.basename(sys.argv[0])
+    vim_args = get_vim_args()
     try:
-        file1 = sys.argv[1]
-        file2 = sys.argv[2]
+        file1 = vim_args[0]
+        file2 = vim_args[1]
     except IndexError:
-        print(f"Usage: {sys.argv[0]} <file1> <file2>", file=sys.stderr)
+        print(f"Usage: {cmdname} <file1> <file2>", file=sys.stderr)
         sys.exit(1)
 
     for filename in [file1, file2]:
         if not os.path.isfile(filename):
-            print(f"{os.path.basename(sys.argv[0])}: {filename}: "
-                  "no such file or directory",
+            print(f"{cmdname}: {filename}: no such file or directory",
                   file=sys.stderr)
             sys.exit(1)
 
@@ -106,7 +106,6 @@ def cli_diff():
 
     try:
         vim_client = VimClient(".*")
-        vim_client.ping()
         vim_client.edit(file1, force_tab=True)
 
         vim_client.ping()
@@ -115,5 +114,5 @@ def cli_diff():
             "silent redraw!",
         ])
     except VimClientError as err:
-        print(f"{sys.argv[0]}: fatal: {err}.", file=sys.stderr)
+        print(f"{cmdname}: fatal: {err}.", file=sys.stderr)
         sys.exit(1)

@@ -104,7 +104,6 @@ class VimClient:
 
         return result
 
-    # pylint: disable=too-many-branches
     def edit(self, files: Union[List[str], str], tab=True,
              silent=True, wait=False, force_tab=False):
         """Make the Vim server edit a list of files.
@@ -172,7 +171,7 @@ class VimClient:
             return result
 
         err_str = (f"The Vim server '{self.vim_server_name}' has not "
-                   "responded to the expression: {keys}")
+                   f"responded to the expression: {keys}")
         raise VimClientError(err_str)
 
     def ping(self):
