@@ -61,13 +61,6 @@ def cli_edit():
     cmdname = os.path.basename(sys.argv[0])
     vim_args = get_vim_args()
 
-    for filename in vim_args:
-        if not os.path.exists(filename):
-            print(f"{cmdname}: {filename}: "
-                  "no such file or directory",
-                  file=sys.stderr)
-            sys.exit(1)
-
     vim_args = [os.path.abspath(filename) for filename in vim_args]
     if not vim_args:
         vim_args = ["."]
