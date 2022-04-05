@@ -194,10 +194,13 @@ class VimClient:
 
         remote_send_args = ""
         remote_send_args += "<Esc><C-w>"
+        send = False
         for command in commands:
             remote_send_args += f":{command}<CR>"
+            send = True
 
-        self._vim_remote(["--remote-send"] + [remote_send_args])
+        if send:
+            self._vim_remote(["--remote-send"] + [remote_send_args])
 
     def _vim_remote(self, args: List[str]) -> List[str]:
         """Execute 'vim --servername <server-name> <args>'."""
