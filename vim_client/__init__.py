@@ -27,6 +27,7 @@
 import os
 import re
 import sys
+from pathlib import Path
 from copy import deepcopy
 from shutil import which
 from subprocess import check_output  # nosec B404
@@ -104,8 +105,13 @@ class VimClient:
 
         return result
 
-    def edit(self, files: Union[List[str], str], tab=True,
-             silent=True, wait=False, force_tab=False):
+    def edit(self,
+             files: Union[List[str], str, List[Path], Path],
+             tab=True,
+             silent=True,
+             wait=False,
+             cwd: Union[Path, str, None] = None,
+             extra_commands: Union[List[str], None] = None):
         """Make the Vim server edit a list of files.
 
         Parameters:
@@ -113,8 +119,8 @@ class VimClient:
         :silent: do not complain if there is no server.
         :wait: wait for files to be edited.
         :tab: edit the file in a new tab.
-        :force_tab: always edit the file in a new tab even when a file is
-                    already open in another tab.
+        :cwd: current working directory (default: current directory).
+        :extra_commands: list of extra Vim commands.
 
         """
         if not files:
@@ -130,39 +136,33 @@ class VimClient:
         if silent:
             option += "-silent"
 
-        if isinstance(files, str):
-            files = [files]
+        if isinstance(files, (Path, str)):
+            files = [Path(files)]
+        else:
+            files = [Path(item).absolute() for item in files]
 
-        if tab and force_tab:
-            bufnr1 = self.expr("bufnr()")
-            winid1 = self.expr("win_getid()")
-            number_tabs1 = int(self.expr("tabpagenr('$')")[0])
+        if cwd is None:
+            cwd = os.getcwd()
+        else:
+            cwd = Path(cwd).absolute()
 
-        self._vim_remote([option] + files)
+        if extra_commands is None:
+            extra_commands = []
 
-        if tab and force_tab:
-            bufnr2 = self.expr("bufnr()")
-            winid2 = self.expr("win_getid()")
-            number_tabs2 = \
-                int(self.expr("tabpagenr('$')")[0])
+        for filename in files:
+            commands = [
+                "tabnew",
+                VimEscape.cmd_escape_all("silent edit", str(filename)),
+            ]
 
-            tabnew = False
+            if cwd:
+                commands += [
+                    VimEscape.cmd_escape_all("silent lcd", str(cwd))
+                ]
 
-            if number_tabs1 != number_tabs2 or winid1 != winid2 \
-                    or bufnr1 == bufnr2:
-                tabnew = True
-
-            if not tabnew and \
-                    int(self.expr("getbufvar(bufnr(), '&diff')")[0]) != 0:
-                tabnew = True
-
-            if tabnew:
-                # Open the files in new tabs
-                for filename in files:
-                    self.send_commands([
-                        "tabnew",
-                        VimEscape.cmd_escape_all("silent edit", filename),
-                    ])
+            commands += ["call foreground()"]
+            commands += extra_commands
+            self.send_commands(commands)
 
     def expr(self, keys: str) -> List[str]:
         """Send 'keys' to the Vim server."""

@@ -41,6 +41,13 @@ alias vi=vim-client-edit
 alias vimdiff=vim-client-diff
 ```
 
+### Add to ~/.vimrc
+
+If you prefer to start diff mode with vertical splits:
+```viml
+set diffopt+=vertical
+```
+
 ## License
 
 Copyright (c) [James Cherti](https://www.jamescherti.com).
