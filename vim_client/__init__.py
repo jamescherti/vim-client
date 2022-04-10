@@ -193,7 +193,7 @@ class VimClient:
             commands = [commands]
 
         remote_send_args = ""
-        remote_send_args += "<Esc><C-w>"
+        remote_send_args += "<C-w>"
         send = False
         for command in commands:
             remote_send_args += f":{command}<CR>"
