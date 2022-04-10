@@ -1,6 +1,6 @@
-# vim-client - send commands to a Vim server (remote)
+# vim-client - send commands to the Vim editor
 
-The **command-line tools 'vim-client-\*'** and the **Python module vim\_client** will allow you to connect to a Vim server and make it:
+The **command-line tools `vim-client-edit`, `vim-client-diff`** and the **Python module `vim_client`** will allow you to connect to a Vim server and make it:
 - Edit files or directories in new tabs,
 - Compare files (similar to vimdiff),
 - Evaluate expressions and return their result,
@@ -10,8 +10,8 @@ It will allow you, for example, to make Vim edit or diff files from outside of V
 
 ## Requirements
 
-- Python >= 3.0
-- The Vim editor ('vim' or 'gvim' in $PATH)
+- Python >= 3.0,
+- The Vim editor ('vim' or 'gvim' in $PATH. Vim must be compiled with |+clientserver|, which is the case of most Vim distributions, because the Python module **vim_client** uses command-line arguments `vim --remote-*`)
 
 ## Installation
 
@@ -56,5 +56,5 @@ Distributed under terms of the MIT license.
 
 ## Links
 
-- [The Git repository of "vim-client"](https://github.com/jamescherti/vim-client)
-- [Vim documentation about +clientserver and "\-\-remote-*"](http://vimdoc.sourceforge.net/htmldoc/remote.html) (`:help remote.txt`)
+- [The Git repository of 'vim-client'](https://github.com/jamescherti/vim-client)
+- [Vim documentation about +clientserver and 'vim \-\-remote'](http://vimdoc.sourceforge.net/htmldoc/remote.html) (`:help remote.txt`)

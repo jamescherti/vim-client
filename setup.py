@@ -17,7 +17,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/jamescherti/vim-client",
     author="James Cherti",
-    keywords="vim, remote, edit",
+    keywords="vim, server, remote, edit, client, clientserver",
     packages=find_packages(),
     python_requires=">=3.6, <4",
     classifiers=[
