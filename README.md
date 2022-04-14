@@ -16,7 +16,7 @@ It will allow you, for example, to make Vim edit or diff files from outside of V
 ## Installation
 
 ```console
-sudo pip install git+https://github.com/jamescherti/vim-client
+sudo pip install vim-client
 ```
 
 ## The 'vim-client-\*' command-line tools
@@ -56,5 +56,6 @@ Distributed under terms of the MIT license.
 
 ## Links
 
+- [The pip package of 'vim-client'](https://pypi.org/project/vim-client/)
 - [The Git repository of 'vim-client'](https://github.com/jamescherti/vim-client)
 - [Vim documentation about +clientserver and 'vim \-\-remote'](http://vimdoc.sourceforge.net/htmldoc/remote.html) (`:help remote.txt`)
