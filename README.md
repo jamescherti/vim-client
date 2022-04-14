@@ -56,6 +56,6 @@ Distributed under terms of the MIT license.
 
 ## Links
 
-- [The pip package of 'vim-client'](https://pypi.org/project/vim-client/)
-- [The Git repository of 'vim-client'](https://github.com/jamescherti/vim-client)
+- [vim-client @PyPI](https://pypi.org/project/vim-client/)
+- [vim-client @GitHub](https://github.com/jamescherti/vim-client)
 - [Vim documentation about +clientserver and 'vim \-\-remote'](http://vimdoc.sourceforge.net/htmldoc/remote.html) (`:help remote.txt`)

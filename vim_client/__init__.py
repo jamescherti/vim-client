@@ -193,6 +193,8 @@ class VimClient:
             commands = [commands]
 
         remote_send_args = ""
+        if self.expr("mode()") not in ["t"]:
+            remote_send_args += "<Esc>"
         remote_send_args += "<C-w>"
         send = False
         for command in commands:
