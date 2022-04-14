@@ -107,34 +107,18 @@ class VimClient:
 
     def edit(self,
              files: Union[List[str], str, List[Path], Path],
-             tab=True,
-             silent=True,
-             wait=False,
              cwd: Union[Path, str, None] = None,
              extra_commands: Union[List[str], None] = None):
         """Make the Vim server edit a list of files.
 
         Parameters:
 
-        :silent: do not complain if there is no server.
-        :wait: wait for files to be edited.
-        :tab: edit the file in a new tab.
         :cwd: current working directory (default: current directory).
         :extra_commands: list of extra Vim commands.
 
         """
         if not files:
             return
-
-        option = "--remote"
-        if tab:
-            option += "-tab"
-
-        if wait:
-            option += "-wait"
-
-        if silent:
-            option += "-silent"
 
         if isinstance(files, (Path, str)):
             files = [Path(files)]
