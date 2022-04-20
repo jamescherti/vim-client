@@ -68,7 +68,7 @@ def cli_edit():
     try:
         vim_client = VimClient(".*")
         vim_client.edit(vim_args,
-                        extra_commands=['redraw'])
+                        extra_commands=['redraw!'])
     except VimClientError as err:
         print(f"{cmdname}: fatal: {err}.", file=sys.stderr)
         sys.exit(1)
