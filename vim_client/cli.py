@@ -82,29 +82,34 @@ def cli_diff():
     """
     cmdname = os.path.basename(sys.argv[0])
     vim_args = get_vim_args()
-    try:
-        file1 = vim_args[0]
-        file2 = vim_args[1]
-    except IndexError:
+
+    if len(vim_args) < 2:
         print(f"Usage: {cmdname} <file1> <file2>", file=sys.stderr)
         sys.exit(1)
 
-    for filename in [file1, file2]:
+    if len(vim_args) > 8:
+        print(f"{cmdname}: cannot diff remote than 8 files",
+              file=sys.stderr)
+        sys.exit(1)
+
+    for filename in vim_args:
         if not os.path.isfile(filename):
             print(f"{cmdname}: {filename}: no such file or directory",
                   file=sys.stderr)
             sys.exit(1)
 
-    file1 = os.path.abspath(file1)
-    file2 = os.path.abspath(file2)
-
     try:
         vim_client = VimClient(".*")
-        vim_client.edit(file1)
-        vim_client.send_commands([
-            VimEscape.cmd_escape_all("silent diffsplit", file2),
-            "silent redraw",
-        ])
+        list_cmd = []
+        file1 = os.path.abspath(vim_args[0])
+        for filename in vim_args[1:]:
+            filename = os.path.abspath(filename)
+
+            list_cmd.append(
+                VimEscape.cmd_escape_all("silent diffsplit", filename)
+            )
+        list_cmd.append("silent redraw")
+        vim_client.edit(file1, extra_commands=list_cmd)
     except VimClientError as err:
         print(f"{cmdname}: fatal: {err}.", file=sys.stderr)
         sys.exit(1)
