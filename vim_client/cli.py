@@ -68,6 +68,7 @@ def cli_edit():
     try:
         vim_client = VimClient(".*")
         vim_client.edit(vim_args,
+                        cwd=os.getcwd(),
                         extra_commands=['redraw!'])
     except VimClientError as err:
         print(f"{cmdname}: fatal: {err}.", file=sys.stderr)
@@ -109,7 +110,7 @@ def cli_diff():
                 VimEscape.cmd_escape_all("silent diffsplit", filename)
             )
         list_cmd.append("silent redraw")
-        vim_client.edit(file1, extra_commands=list_cmd)
+        vim_client.edit(file1, cwd=os.getcwd(), extra_commands=list_cmd)
     except VimClientError as err:
         print(f"{cmdname}: fatal: {err}.", file=sys.stderr)
         sys.exit(1)

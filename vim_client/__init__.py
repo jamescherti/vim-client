@@ -109,7 +109,7 @@ class VimClient:
              files: Union[List[str], str, List[Path], Path],
              cwd: Union[Path, str, None] = None,
              extra_commands: Union[List[str], None] = None):
-        """Make the Vim server edit a list of files.
+        """Make Vim server edit a list of files.
 
         Parameters:
 
@@ -125,9 +125,7 @@ class VimClient:
         else:
             files = [Path(item).absolute() for item in files]
 
-        if cwd is None:
-            cwd = os.getcwd()
-        else:
+        if cwd is not None:
             cwd = Path(cwd).absolute()
 
         if extra_commands is None:
