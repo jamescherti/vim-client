@@ -10,7 +10,7 @@ It will allow you, for example, to make Vim edit or diff files from outside of V
 
 ## Requirements
 
-- Python >= 3.0,
+- Python >= 3.0
 - The Vim editor ('vim' or 'gvim' in $PATH. Vim must be compiled with |+clientserver|, which is the case of most Vim distributions, because the Python module **vim_client** uses command-line arguments `vim --remote-*`)
 
 ## Installation
@@ -21,7 +21,7 @@ sudo pip install vim-client
 
 ## The 'vim-client-\*' command-line tools
 
-Edit a file in a new tab:
+Edit a file/directory in a new tab:
 ```console
 vim-client-edit file1
 ```
@@ -41,9 +41,9 @@ alias vi=vim-client-edit
 alias vimdiff=vim-client-diff
 ```
 
-### Add to ~/.vimrc
+### Start diff mode with vertical splits (vim-client-diff)
 
-If you prefer to start diff mode with vertical splits:
+Add to your `~/.vimrc` the following line:
 ```viml
 set diffopt+=vertical
 ```

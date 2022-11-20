@@ -26,6 +26,7 @@
 
 import os
 import sys
+import argparse
 
 from . import VimEscape, VimClient, VimClientError
 
@@ -33,7 +34,7 @@ from . import VimEscape, VimClient, VimClientError
 def get_vim_args():
     """Return Vim command-line arguments.
 
-    Ignore the options (like '-d' or '--diff') for backward compatiblity.
+    Ignore the options (like '-d' or '--diff') for backward compatibility.
 
     """
     vim_args = []
@@ -59,17 +60,34 @@ def cli_edit():
 
     """
     cmdname = os.path.basename(sys.argv[0])
-    vim_args = get_vim_args()
 
-    vim_args = [os.path.abspath(filename) for filename in vim_args]
-    if not vim_args:
-        vim_args = ["."]
+    usage = "%(prog)s [files_or_dirs]"
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0],
+                                     usage=usage)
+    parser.add_argument("paths", metavar="files_or_dirs", type=str, nargs="+",
+                        help="Paths to the files/directories")
+    args = parser.parse_args()
 
+    # Pre-commands
+    pre_commands = []
+
+    # Post-commands
+    post_commands = []
+    post_commands += ["call foreground()"]
+    post_commands += ["echon ''"]  # Clear the command-line
+
+    # Paths
+    list_paths = [os.path.abspath(filename) for filename in args.paths]
+    if not list_paths:
+        list_paths = ["."]
+
+    # Edit the file/directory
     try:
         vim_client = VimClient(".*")
-        vim_client.edit(vim_args,
+        vim_client.edit(list_paths,
                         cwd=os.getcwd(),
-                        extra_commands=['redraw!'])
+                        pre_commands=pre_commands,
+                        post_commands=post_commands)
     except VimClientError as err:
         print(f"{cmdname}: fatal: {err}.", file=sys.stderr)
         sys.exit(1)
@@ -101,16 +119,17 @@ def cli_diff():
 
     try:
         vim_client = VimClient(".*")
-        list_cmd = []
+        post_commands = []
         file1 = os.path.abspath(vim_args[0])
         for filename in vim_args[1:]:
             filename = os.path.abspath(filename)
-
-            list_cmd.append(
+            post_commands.append(
                 VimEscape.cmd_escape_all("silent diffsplit", filename)
             )
-        list_cmd.append("silent redraw")
-        vim_client.edit(file1, cwd=os.getcwd(), extra_commands=list_cmd)
+
+        post_commands += ["call foreground()"]
+        post_commands += ["echon ''"]  # Clear the command-line
+        vim_client.edit(file1, cwd=os.getcwd(), post_commands=post_commands)
     except VimClientError as err:
         print(f"{cmdname}: fatal: {err}.", file=sys.stderr)
         sys.exit(1)
