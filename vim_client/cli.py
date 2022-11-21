@@ -28,7 +28,7 @@ import os
 import sys
 import argparse
 
-from . import VimEscape, VimClient, VimClientError
+from . import VimClient, VimClientError
 
 
 def get_vim_args():
@@ -124,7 +124,7 @@ def cli_diff():
         for filename in vim_args[1:]:
             filename = os.path.abspath(filename)
             post_commands.append(
-                VimEscape.cmd_escape_all("silent diffsplit", filename)
+                vim_client.cmd_escape("silent diffsplit", filename),
             )
 
         post_commands += ["call foreground()"]

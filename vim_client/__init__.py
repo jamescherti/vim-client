@@ -38,39 +38,6 @@ class VimClientError(Exception):
     """Exception raised by VimClient()."""
 
 
-class VimEscape:
-    """Escape functions."""
-
-    @staticmethod
-    def escape_all(string: str):
-        """Escape all characters."""
-        return re.sub(r'(.)', r'\\\1', string)
-
-    @staticmethod
-    def escape(string: str, chars: str):
-        """Escape the characters in 'chars' that occur in 'string'."""
-        result = ""
-        for char in string:
-            if char in chars:
-                result += "\\"
-
-            result += char
-
-        return result
-
-    @staticmethod
-    def cmd_escape_all(cmd: str, arg: str = ""):
-        """Escape the argument of a Vim command.
-
-        >>> cmd_escape("lcd", "/etc")
-
-        """
-        result = cmd
-        if arg:
-            result += " " + VimEscape.escape_all(arg)
-        return result
-
-
 class VimClient:
     """Communicate with Vim via 'vim --remote*' command-line options."""
 
@@ -80,6 +47,14 @@ class VimClient:
 
         self.vim_server_name = ""
         self._find_vim_server_name(regex_server_name)
+
+    def _fnameescape(self, string: str):
+        string = string.replace("'", "''")
+        return self.expr(f"fnameescape('{string}')")[0]
+
+    def cmd_escape(self, cmd: str, arg: str):
+        arg = self._fnameescape(arg)
+        return f"{cmd} {arg}"
 
     def _find_vim_bin(self):
         list_vim_commands = ("vim", "gvim")
@@ -150,10 +125,10 @@ class VimClient:
         for filename in files:
             commands += pre_commands
 
-            commands += [VimEscape.cmd_escape_all("tabnew", str(filename))]
+            commands += [self.cmd_escape("tabnew", str(filename))]
 
             if cwd:
-                commands += [VimEscape.cmd_escape_all("lcd", str(cwd))]
+                commands += [self.cmd_escape("lcd", str(cwd))]
 
             commands += post_commands
 
