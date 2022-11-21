@@ -21,15 +21,17 @@ sudo pip install vim-client
 
 ## The 'vim-client-\*' command-line tools
 
-Edit a file/directory in a new tab:
+Open files/directories in new tabs:
 ```console
-vim-client-edit file1
+vim-client-edit file1 file2 file3
 ```
 
-Compare two files:
+Compare up to eight files:
 ```console
 vim-client-diff file1 file2
 ```
+
+## Recommendations
 
 ### Add aliases to ~/.bashrc
 
@@ -43,9 +45,42 @@ alias vimdiff=vim-client-diff
 
 ### Start diff mode with vertical splits (vim-client-diff)
 
-Add to your `~/.vimrc` the following line:
+Add the following line to your `~/.vimrc`:
 ```viml
 set diffopt+=vertical
+```
+
+### Create desktop launchers
+File: `/usr/local/share/applications/vim-client-edit.desktop`
+```
+[Desktop Entry]
+Name=vim-client-edit
+GenericName=Vim Client Edit
+Comment=Vim Client Edit
+Exec=vim-client-edit %F
+Terminal=false
+Type=Application
+Keywords=Text;editor;
+Icon=gvim
+Categories=Utility;TextEditor;
+StartupNotify=false
+MimeType=text/english;text/plain;text/x-makefile;text/x-c++hdr;text/x-c++src;text/x-chdr;text/x-csrc;text/x-java;text/x-moc;text/x-pascal;text/x-tcl;text/x-tex;application/x-shellscript;text/x-c;text/x-c++;
+```
+
+File: `/usr/local/share/applications/vim-client-diff.desktop`
+```
+[Desktop Entry]
+Name=vim-client-diff
+GenericName=Vim Client Diff
+Comment=Vim Client Diff
+Exec=vim-client-diff %F
+Terminal=false
+Type=Application
+Keywords=Text;editor;
+Icon=gvim
+Categories=Utility;TextEditor;
+StartupNotify=false
+MimeType=text/english;text/plain;text/x-makefile;text/x-c++hdr;text/x-c++src;text/x-chdr;text/x-csrc;text/x-java;text/x-moc;text/x-pascal;text/x-tcl;text/x-tex;application/x-shellscript;text/x-c;text/x-c++;
 ```
 
 ## License
