@@ -150,8 +150,7 @@ class VimClient:
         for filename in files:
             commands += pre_commands
 
-            commands += [VimEscape.cmd_escape_all("tabnew")]
-            commands += [VimEscape.cmd_escape_all("edit", str(filename))]
+            commands += [VimEscape.cmd_escape_all("tabnew", str(filename))]
 
             if cwd:
                 commands += [VimEscape.cmd_escape_all("lcd", str(cwd))]
