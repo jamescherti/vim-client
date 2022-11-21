@@ -10,7 +10,7 @@ LONG_DESCRIPTION = (CURRENT_DIRECTORY / "README.md") \
 
 setup(
     name="vim-client",
-    version="1.0.2",
+    version="1.0.3",
     description=("Connect to Vim server, edit files, evaluate Vim "
                  "expressions, and send commands to Vim."),
     long_description=LONG_DESCRIPTION,
