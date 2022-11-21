@@ -64,7 +64,7 @@ def cli_edit():
     usage = "%(prog)s [files_or_dirs]"
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0],
                                      usage=usage)
-    parser.add_argument("paths", metavar="files_or_dirs", type=str, nargs="+",
+    parser.add_argument("paths", metavar="files_or_dirs", type=str, nargs="*",
                         help="Paths to the files/directories")
     args = parser.parse_args()
 
