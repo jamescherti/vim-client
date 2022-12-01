@@ -70,11 +70,10 @@ def cli_edit():
 
     # Pre-commands
     pre_commands = []
+    pre_commands += ["call foreground()"]
 
     # Post-commands
     post_commands = []
-    post_commands += ["call foreground()"]
-    post_commands += ["echon ''"]  # Clear the command-line
 
     # Paths
     list_paths = [os.path.abspath(filename) for filename in args.paths]
@@ -119,17 +118,20 @@ def cli_diff():
 
     try:
         vim_client = VimClient(".*")
-        post_commands = []
+        pre_commands = []
+        diff_commands = []
         file1 = os.path.abspath(vim_args[0])
         for filename in vim_args[1:]:
             filename = os.path.abspath(filename)
-            post_commands.append(
+            diff_commands.append(
                 vim_client.cmd_escape("silent diffsplit", filename),
             )
 
-        post_commands += ["call foreground()"]
-        post_commands += ["echon ''"]  # Clear the command-line
-        vim_client.edit(file1, cwd=os.getcwd(), post_commands=post_commands)
+        pre_commands += ["call foreground()"]
+        vim_client.edit(file1,
+                        cwd=os.getcwd(),
+                        pre_commands=pre_commands,
+                        post_commands=diff_commands)
     except VimClientError as err:
         print(f"{cmdname}: fatal: {err}.", file=sys.stderr)
         sys.exit(1)

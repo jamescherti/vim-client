@@ -127,12 +127,13 @@ class VimClient:
 
         commands = []
         for filename in files:
-            commands += pre_commands
-
-            commands += [self.cmd_escape("tabnew", str(filename))]
-
+            commands += ["tabnew"]
             if cwd:
                 commands += [self.cmd_escape("lcd", str(cwd))]
+
+            commands += pre_commands
+
+            commands += [self.cmd_escape("edit", str(filename))]
 
             commands += post_commands
 
@@ -164,6 +165,8 @@ class VimClient:
     def send_commands(self, commands: Union[str, List[str]]):
         """Send commands to the Vim server.
 
+        :commands: List of Vim commands.
+
         >> self.send_commands('tabnew', 'edit fstab', 'lcd /etc')
 
         """
@@ -173,22 +176,33 @@ class VimClient:
         if isinstance(commands, str):
             commands = [commands]
 
-        remote_send_args = ""
+        # Switch to normal mode
+        vim_commands_switch_normal_mode = ""
         mode = self.expr("mode()")[0]
         if mode != "t":
             if mode == "c":
-                remote_send_args += "<C-c>"
+                vim_commands_switch_normal_mode += "<C-c>"
             else:
-                remote_send_args += "<Esc>"
+                vim_commands_switch_normal_mode += "<Esc>"
+        vim_commands_switch_normal_mode += "<C-w>"
 
-        remote_send_args += "<C-w>"
+        # Vim commands
+        vim_commands = ""
         send = False
         for command in commands:
-            remote_send_args += f":{command}<CR>"
+            if send:
+                vim_commands += " | "
+
+            vim_commands += command
             send = True
 
         if send:
-            self.exec_vim_remote(["--remote-send"] + [remote_send_args])
+            self.run_vim_remote_get_output(
+                ["--remote-send"] + [vim_commands_switch_normal_mode]
+            )
+            self.expr(
+                f"""execute('{vim_commands.replace("'", "''")}')"""
+            )
 
     def exec_vim_remote(self, args: List[str]):
         """Execute 'vim --servername <server-name> <args>'."""
