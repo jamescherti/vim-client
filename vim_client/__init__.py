@@ -167,8 +167,6 @@ class VimClient:
 
         :commands: List of Vim commands.
 
-        >> self.send_commands('tabnew', 'edit fstab', 'lcd /etc')
-
         """
         if not commands:
             return
@@ -176,17 +174,6 @@ class VimClient:
         if isinstance(commands, str):
             commands = [commands]
 
-        # Switch to normal mode
-        vim_commands_switch_normal_mode = ""
-        mode = self.expr("mode()")[0]
-        if mode != "t":
-            if mode == "c":
-                vim_commands_switch_normal_mode += "<C-c>"
-            else:
-                vim_commands_switch_normal_mode += "<Esc>"
-        vim_commands_switch_normal_mode += "<C-w>"
-
-        # Vim commands
         vim_commands = ""
         send = False
         for command in commands:
@@ -197,9 +184,6 @@ class VimClient:
             send = True
 
         if send:
-            self.run_vim_remote_get_output(
-                ["--remote-send"] + [vim_commands_switch_normal_mode]
-            )
             self.expr(
                 f"""execute('{vim_commands.replace("'", "''")}')"""
             )
