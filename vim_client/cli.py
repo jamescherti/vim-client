@@ -31,28 +31,6 @@ import argparse
 from . import VimClient, VimClientError
 
 
-def get_vim_args():
-    """Return Vim command-line arguments.
-
-    Ignore the options (like '-d' or '--diff') for backward compatibility.
-
-    """
-    vim_args = []
-    double_dash_found = False
-    for arg in sys.argv[1:]:
-        if arg == "--" and not double_dash_found:
-            double_dash_found = True
-            continue
-
-        if arg.startswith('-'):
-            continue
-
-        if arg != "--" or double_dash_found:
-            vim_args.append(arg)
-
-    return vim_args
-
-
 def cli_edit():
     """The command-line tool 'vim-client-edit'.
 
@@ -65,7 +43,7 @@ def cli_edit():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0],
                                      usage=usage)
     parser.add_argument("paths", metavar="files_or_dirs", type=str, nargs="*",
-                        help="Paths to the files/directories")
+                        help="Paths to the files/directories.")
     args = parser.parse_args()
 
     # Pre-commands
@@ -99,18 +77,23 @@ def cli_diff():
 
     """
     cmdname = os.path.basename(sys.argv[0])
-    vim_args = get_vim_args()
+    usage = "%(prog)s <file1> <file2> [file3]..."
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0],
+                                     usage=usage)
+    parser.add_argument("paths", metavar="files", type=str, nargs="*",
+                        help="Paths to the files/directories.")
+    args = parser.parse_args()
 
-    if len(vim_args) < 2:
-        print(f"Usage: {cmdname} <file1> <file2>", file=sys.stderr)
+    if len(args.paths) < 2:
+        parser.print_usage()
         sys.exit(1)
 
-    if len(vim_args) > 8:
-        print(f"{cmdname}: cannot diff remote than 8 files",
+    if len(args.paths) > 8:
+        print(f"{cmdname}: cannot diff more than 8 files",
               file=sys.stderr)
         sys.exit(1)
 
-    for filename in vim_args:
+    for filename in args.paths:
         if not os.path.isfile(filename):
             print(f"{cmdname}: {filename}: no such file or directory",
                   file=sys.stderr)
@@ -120,8 +103,8 @@ def cli_diff():
         vim_client = VimClient(".*")
         pre_commands = []
         diff_commands = []
-        file1 = os.path.abspath(vim_args[0])
-        for filename in vim_args[1:]:
+        file1 = os.path.abspath(args.paths[0])
+        for filename in args.paths[1:]:
             filename = os.path.abspath(filename)
             diff_commands.append(
                 vim_client.cmd_escape("silent diffsplit", filename),
