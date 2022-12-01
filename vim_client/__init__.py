@@ -30,7 +30,7 @@ import sys
 from pathlib import Path
 from copy import deepcopy
 from shutil import which
-from subprocess import check_output  # nosec B404
+from subprocess import CalledProcessError, check_output  # nosec B404
 from typing import List, Union
 
 
@@ -75,8 +75,12 @@ class VimClient:
         raise VimClientError("The Vim server is not listening")
 
     def _vim_server_list(self) -> List[str]:
-        cmd_output = check_output([self.vim_bin, "--serverlist"])
-        result = []
+        result: List[str] = []
+        try:
+            cmd_output = check_output([self.vim_bin, "--serverlist"])
+        except CalledProcessError:
+            return result
+
         for line in cmd_output.decode().splitlines():
             line = line.strip()
             if line:
@@ -142,8 +146,14 @@ class VimClient:
 
     def expr(self, expression: str) -> List[str]:
         """Send 'expression' to the Vim server and return its result."""
-        result = self.run_vim_remote_get_output(["--remote-expr"] +
-                                                [expression])
+        result: List[str] = []
+        try:
+            result = self.run_vim_remote_get_output(
+                ["--remote-expr"] + [expression],
+            )
+        except CalledProcessError:
+            pass
+
         if not result:
             err_str = (f"The Vim server '{self.vim_server_name}' has not "
                        f"responded to the expression: {expression}")
