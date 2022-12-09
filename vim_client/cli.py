@@ -22,7 +22,12 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 #
-"""The command-line interfaces: 'vim-client-edit' and 'vim-client-diff'."""
+"""The command-line interfaces.
+
+- vim-client-edit
+- vim-client-diff
+
+"""
 
 import os
 import sys
@@ -31,20 +36,35 @@ import argparse
 from . import VimClient, VimClientError
 
 
-def cli_edit():
-    """The command-line tool 'vim-client-edit'.
+def parse_args(description: str, usage: str):
+    arg_parser = argparse.ArgumentParser(
+        description=description,
+        usage=usage,
+    )
 
-    Connect to a Vim server and edit a file.
+    arg_parser.add_argument(
+        "paths",
+        metavar="files_or_dirs",
+        type=str,
+        nargs="*",
+        help="Paths to the files/directories.",
+    )
+
+    return arg_parser.parse_args()
+
+
+def cli_edit():
+    """The command-line tool: 'vim-client-edit'.
+
+    Connect to a Vim server and edit files/directories.
 
     """
     cmdname = os.path.basename(sys.argv[0])
-
-    usage = "%(prog)s [files_or_dirs]"
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0],
-                                     usage=usage)
-    parser.add_argument("paths", metavar="files_or_dirs", type=str, nargs="*",
-                        help="Paths to the files/directories.")
-    args = parser.parse_args()
+    args = parse_args(
+        description=("Connect to a Vim server and make it edit "
+                     "files/directories."),
+        usage="%(prog)s [files_or_dirs]",
+    )
 
     # Pre-commands
     pre_commands = []
@@ -71,21 +91,20 @@ def cli_edit():
 
 
 def cli_diff():
-    """The command-line tool 'vim-client-diff'.
+    """The command-line tool: 'vim-client-diff'.
 
-    Connect to a Vim server and show the difference between two files.
+    Connect to a Vim server and show the differences between files.
 
     """
     cmdname = os.path.basename(sys.argv[0])
-    usage = "%(prog)s <file1> <file2> [file3]..."
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0],
-                                     usage=usage)
-    parser.add_argument("paths", metavar="files", type=str, nargs="*",
-                        help="Paths to the files/directories.")
-    args = parser.parse_args()
+    args = parse_args(
+        description=("Connect to a Vim server and show the differences "
+                     "between files."),
+        usage="%(prog)s <file1> <file2> [file3]...",
+    )
 
     if len(args.paths) < 2:
-        parser.print_usage()
+        args.print_usage()
         sys.exit(1)
 
     if len(args.paths) > 8:
