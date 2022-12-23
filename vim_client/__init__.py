@@ -27,8 +27,8 @@
 import os
 import re
 import sys
-from pathlib import Path
 from copy import deepcopy
+from pathlib import Path
 from shutil import which
 from subprocess import CalledProcessError, check_output  # nosec B404
 from typing import List, Union
@@ -41,12 +41,18 @@ class VimClientError(Exception):
 class VimClient:
     """Communicate with Vim via 'vim --remote*' command-line options."""
 
-    def __init__(self, regex_server_name: str):
+    def __init__(self, server_name_regex: str, list_vim_bin: List[str]):
+        """Init VimClient.
+
+        :server_name_regex: Regex that is used to find the Vim server.
+        :list_vim_bin: List of paths to the Vim binary.
+
+        """
         self.vim_bin = ""
-        self._find_vim_bin()
+        self._find_vim_bin(list_vim_bin)
 
         self.vim_server_name = ""
-        self._find_vim_server_name(regex_server_name)
+        self._find_vim_server_name(server_name_regex)
 
     def _fnameescape(self, string: str):
         string = string.replace("'", "''")
@@ -56,23 +62,36 @@ class VimClient:
         arg = self._fnameescape(arg)
         return f"{cmd} {arg}"
 
-    def _find_vim_bin(self):
-        list_vim_commands = ("vim", "gvim")
+    def _find_vim_bin(self, list_vim_bin: List[str]):
+        list_vim_commands = list_vim_bin if list_vim_bin else ["vim", "gvim"]
+
         for bin_name in list_vim_commands:
             bin_path = which(bin_name)
             if bin_path:
                 self.vim_bin = bin_path
                 return
 
-        raise VimClientError(f"Vim was not found {list_vim_commands}")
+        raise VimClientError(
+            f"The Vim command was not found: {list_vim_commands}"
+        )
 
     def _find_vim_server_name(self, regex: str):
-        for server_name in self._vim_server_list():
+        vim_server_list = self._vim_server_list()
+        for server_name in vim_server_list:
             if re.search(regex, server_name, re.I):
                 self.vim_server_name = server_name
                 return
 
-        raise VimClientError("The Vim server is not listening")
+        if vim_server_list:
+            raise VimClientError(
+                f"The regular expression '{regex}' does not match any of the "
+                f"running Vim servers: {vim_server_list}"
+            )
+        else:
+            raise VimClientError(
+                f"The Vim server is not listening (the following command "
+                f"returned an empty list: '{self.vim_bin} --serverlist')"
+            )
 
     def _vim_server_list(self) -> List[str]:
         result: List[str] = []
@@ -188,10 +207,9 @@ class VimClient:
                 f"""execute('{vim_commands.replace("'", "''")}')"""
             )
 
-    def exec_vim_remote(self, args: List[str]):
-        """Execute 'vim --servername <server-name> <args>'."""
-        vim_args = self._build_vim_remote_cmd_args(args=args)
-        os.execl(self.vim_bin, *([self.vim_bin] + vim_args))
+    def exec_vim(self, args: List[str]):
+        """Execute Vim, replacing the current process."""
+        os.execl(self.vim_bin, *([self.vim_bin] + args))
         sys.exit(1)
 
     def run_vim_remote_get_output(self, args: List[str]) -> List[str]:

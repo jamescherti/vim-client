@@ -30,14 +30,16 @@
 """
 
 import os
+import re
 import sys
-import argparse
+from argparse import ArgumentParser, Namespace
+from typing import Tuple
 
 from . import VimClient, VimClientError
 
 
-def parse_args(description: str, usage: str):
-    arg_parser = argparse.ArgumentParser(
+def cli_init(description: str, usage: str) -> Tuple[VimClient, Namespace]:
+    arg_parser = ArgumentParser(
         description=description,
         usage=usage,
     )
@@ -50,7 +52,48 @@ def parse_args(description: str, usage: str):
         help="Paths to the files/directories.",
     )
 
-    return arg_parser.parse_args()
+    arg_parser.add_argument(
+        "--servername",
+        default="",
+        help=("The name of the Vim server to connect to "
+              "(By default, connect to one of the running Vim servers)."),
+    )
+
+    arg_parser.add_argument(
+        "--vim-bin",
+        default=[],
+        action="append",
+        help=(
+            "Path to the Vim binary (By default, it tries "
+            "to use: ['vim', 'gvim'])."
+        ),
+    )
+
+    arg_parser.add_argument(
+        "--serverlist",
+        default=False,
+        action="store_true",
+        help="List the names of all Vim servers that can be found.",
+    )
+
+    args = arg_parser.parse_args()
+
+    vim_server_name = ("^" + re.escape(args.servername) + "$"
+                       if args.servername else ".*")
+    try:
+        vim_client = VimClient(
+            server_name_regex=vim_server_name,
+            list_vim_bin=args.vim_bin,
+        )
+    except VimClientError as err:
+        print(f"Error: {err}", file=sys.stderr)
+        sys.exit(1)
+
+    if args.serverlist:
+        vim_client.exec_vim(["--serverlist"])
+        sys.exit(0)
+
+    return (vim_client, args)
 
 
 def cli_edit():
@@ -60,7 +103,7 @@ def cli_edit():
 
     """
     cmdname = os.path.basename(sys.argv[0])
-    args = parse_args(
+    vim_client, args = cli_init(
         description=("Connect to a Vim server and make it edit "
                      "files/directories."),
         usage="%(prog)s [files_or_dirs]",
@@ -80,7 +123,6 @@ def cli_edit():
 
     # Edit the file/directory
     try:
-        vim_client = VimClient(".*")
         vim_client.edit(list_paths,
                         cwd=os.getcwd(),
                         pre_commands=pre_commands,
@@ -97,7 +139,7 @@ def cli_diff():
 
     """
     cmdname = os.path.basename(sys.argv[0])
-    args = parse_args(
+    vim_client, args = cli_init(
         description=("Connect to a Vim server and show the differences "
                      "between files."),
         usage="%(prog)s <file1> <file2> [file3]...",
@@ -119,7 +161,6 @@ def cli_diff():
             sys.exit(1)
 
     try:
-        vim_client = VimClient(".*")
         pre_commands = []
         diff_commands = []
         file1 = os.path.abspath(args.paths[0])

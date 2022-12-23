@@ -8,6 +8,12 @@ The **command-line tools `vim-client-edit`, `vim-client-diff`** and the **Python
 
 It will allow you, for example, to make Vim edit or diff files from outside of Vim (e.g. from a shell like Bash, Zsh, etc.).
 
+## License
+
+Copyright (c) [James Cherti](https://www.jamescherti.com).
+
+Distributed under terms of the MIT license.
+
 ## Requirements
 
 - Python >= 3.0
@@ -82,12 +88,6 @@ Categories=Utility;TextEditor;
 StartupNotify=false
 MimeType=text/english;text/plain;text/x-makefile;text/x-c++hdr;text/x-c++src;text/x-chdr;text/x-csrc;text/x-java;text/x-moc;text/x-pascal;text/x-tcl;text/x-tex;application/x-shellscript;text/x-c;text/x-c++;
 ```
-
-## License
-
-Copyright (c) [James Cherti](https://www.jamescherti.com).
-
-Distributed under terms of the MIT license.
 
 ## Links
 
