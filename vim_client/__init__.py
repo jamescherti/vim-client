@@ -34,6 +34,9 @@ from subprocess import CalledProcessError, check_output  # nosec B404
 from typing import List, Union
 
 
+DEFAULT_VIM = ["vim", "gvim"]
+
+
 class VimClientError(Exception):
     """Exception raised by VimClient()."""
 
@@ -63,7 +66,7 @@ class VimClient:
         return f"{cmd} {arg}"
 
     def _find_vim_bin(self, list_vim_bin: List[str]):
-        list_vim_commands = list_vim_bin if list_vim_bin else ["vim", "gvim"]
+        list_vim_commands = list_vim_bin if list_vim_bin else DEFAULT_VIM
 
         for bin_name in list_vim_commands:
             bin_path = which(bin_name)

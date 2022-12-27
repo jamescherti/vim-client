@@ -31,14 +31,17 @@
 
 import os
 import re
+import shutil
 import sys
 from argparse import ArgumentParser, Namespace
 from typing import Tuple
 
-from . import VimClient, VimClientError
+from . import VimClient, VimClientError, DEFAULT_VIM
 
 
-def cli_init(description: str, usage: str) -> Tuple[VimClient, Namespace]:
+def cli_init(description: str,
+             usage: str,
+             vim_type: str) -> Tuple[VimClient, Namespace]:
     arg_parser = ArgumentParser(
         description=description,
         usage=usage,
@@ -61,11 +64,20 @@ def cli_init(description: str, usage: str) -> Tuple[VimClient, Namespace]:
 
     arg_parser.add_argument(
         "--vim-bin",
-        default=[],
+        default=None,
         action="append",
         help=(
-            "Path to the Vim binary (By default, it tries "
-            "to use: ['vim', 'gvim'])."
+            "Path to the Vim binary (Default: ['vim', 'gvim'])."
+        ),
+    )
+
+    arg_parser.add_argument(
+        "--fallback-vim-bin",
+        default=None,
+        action="append",
+        help=(
+            "Path to the Vim command that is executed when no Vim server is "
+            "listening (Default: ['vim', 'gvim'])."
         ),
     )
 
@@ -80,13 +92,47 @@ def cli_init(description: str, usage: str) -> Tuple[VimClient, Namespace]:
 
     vim_server_name = ("^" + re.escape(args.servername) + "$"
                        if args.servername else ".*")
+    vim_client = None
     try:
         vim_client = VimClient(
             server_name_regex=vim_server_name,
             list_vim_bin=args.vim_bin,
         )
     except VimClientError as err:
-        print(f"Error: {err}", file=sys.stderr)
+        if not args.fallback_vim_bin:
+            print(f"Warning: {err}", file=sys.stderr)
+
+    if not vim_client:
+        list_vim_cmd = []
+        if args.fallback_vim_bin:
+            list_vim_cmd = args.fallback_vim_bin
+        elif args.vim_bin:
+            list_vim_cmd = args.vim_bin
+        else:
+            list_vim_cmd = DEFAULT_VIM
+
+        vim_cmd = ""
+        vim_bin_path = ""
+        for vim_cmd in list_vim_cmd:
+            if vim_type == "vimdiff":
+                vim_cmd = f"{vim_cmd}diff"
+
+            vim_bin_path = shutil.which(vim_cmd)  # type: ignore
+            if vim_bin_path:
+                break
+
+        if not vim_bin_path:
+            print(f"Error: Command not found: {vim_cmd}",
+                  file=sys.stderr)
+            sys.exit(1)
+
+        try:
+            os.execl(vim_bin_path, *([vim_bin_path] + args.paths))
+        except OSError as err:
+            print(f"Error: Could not execute '{vim_cmd}': {err}",
+                  file=sys.stderr)
+            sys.exit(1)
+
         sys.exit(1)
 
     if args.serverlist:
@@ -107,6 +153,7 @@ def cli_edit():
         description=("Connect to a Vim server and make it edit "
                      "files/directories."),
         usage="%(prog)s [files_or_dirs]",
+        vim_type="vim",
     )
 
     # Pre-commands
@@ -143,6 +190,7 @@ def cli_diff():
         description=("Connect to a Vim server and show the differences "
                      "between files."),
         usage="%(prog)s <file1> <file2> [file3]...",
+        vim_type="vimdiff",
     )
 
     if len(args.paths) < 2:
