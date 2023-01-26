@@ -29,15 +29,16 @@
 
 """
 
+import argparse
 import os
 import re
 import shutil
+import subprocess
 import sys
-import argparse
 from argparse import ArgumentParser, Namespace
 from typing import Tuple
 
-from . import VimClient, VimClientError, DEFAULT_VIM
+from . import DEFAULT_VIM, VimClient, VimClientError
 
 
 def cli_init(description: str,
@@ -59,8 +60,12 @@ def cli_init(description: str,
     arg_parser.add_argument(
         "--servername",
         default="",
-        help=("The name of the Vim server to connect to "
-              "(By default, connect to one of the running Vim servers)."),
+        help=("This option allows specifying the Vim server to connect to. "
+              "If no value is provided, an attempt will be made to connect "
+              "to any available Vim servers. "
+              "If no Vim server is currently listening, a new instance of Vim "
+              "will be launched with the '--servername SERVERNAME' option, "
+              "which will start a new Vim server."),
     )
 
     arg_parser.add_argument(
@@ -68,17 +73,10 @@ def cli_init(description: str,
         default=None,
         action="append",
         help=(
-            "Path to the Vim binary (Default: ['vim', 'gvim'])."
-        ),
-    )
-
-    arg_parser.add_argument(
-        "--fallback-vim-bin",
-        default=None,
-        action="append",
-        help=(
-            "Path to the Vim command that is executed when no Vim server is "
-            "listening (Default: ['vim', 'gvim'])."
+            "Path to the Vim binary (Default: ['vim', 'gvim']). "
+            "This Vim binary will be utilized for connecting to a Vim server "
+            "instance, as well as for launching a new instance of Vim if no "
+            "Vim server is currently listening."
         ),
     )
 
@@ -113,14 +111,12 @@ def cli_init(description: str,
             list_vim_bin=args.vim_bin,
         )
     except VimClientError as err:
-        if not args.fallback_vim_bin:
+        if not args.vim_bin:
             print(f"Warning: {err}", file=sys.stderr)
 
     if not vim_client:
         list_vim_cmd = []
-        if args.fallback_vim_bin:
-            list_vim_cmd = args.fallback_vim_bin
-        elif args.vim_bin:
+        if args.vim_bin:
             list_vim_cmd = args.vim_bin
         else:
             list_vim_cmd = DEFAULT_VIM
@@ -141,7 +137,12 @@ def cli_init(description: str,
             sys.exit(1)
 
         try:
-            os.execl(vim_bin_path, *([vim_bin_path] + args.paths))
+            vim_args = ([vim_bin_path] +
+                        ((["--servername"] + [args.servername])
+                         if args.servername else []) + args.paths)
+            print(f"[RUN] {subprocess.list2cmdline(vim_args)}",
+                  file=sys.stderr)
+            os.execl(vim_bin_path, *(vim_args))
         except OSError as err:
             print(f"Error: Could not execute '{vim_cmd}': {err}",
                   file=sys.stderr)
