@@ -33,6 +33,7 @@ import os
 import re
 import shutil
 import sys
+import argparse
 from argparse import ArgumentParser, Namespace
 from typing import Tuple
 
@@ -88,7 +89,20 @@ def cli_init(description: str,
         help="List the names of all Vim servers that can be found.",
     )
 
+    arg_parser.add_argument(
+        "-d",
+        "--diff",
+        default=False,
+        action="store_true",
+        help=("Start in diff mode. Works like 'vim-client-diff'."
+              if vim_type == "vim" else argparse.SUPPRESS),
+    )
+
     args = arg_parser.parse_args()
+
+    if vim_type == "vim" and args.diff:
+        cli_diff()
+        sys.exit(0)
 
     vim_server_name = ("^" + re.escape(args.servername) + "$"
                        if args.servername else ".*")
