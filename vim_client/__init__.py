@@ -113,9 +113,10 @@ class VimClient:
     def edit(self,
              files: Union[List[str], str, List[Path], Path],
              cwd: Union[Path, str, None] = None,
+             open_in: str = "current_window",
              pre_commands: Union[List[str], None] = None,
              post_commands: Union[List[str], None] = None):
-        """Make the Vim server edit a list of files/directories in new tabs.
+        """Make Vim server edit files/directories.
 
         Parameters:
 
@@ -128,6 +129,9 @@ class VimClient:
 
         :post_commands: A list of Vim commands that will be executed after the
         files/directories are opened.
+
+        :open_in: Possible values: "tab", "split", "vsplit", "current_window"
+                                   (Default: "current_window").
 
         """
         if not files:
@@ -147,9 +151,23 @@ class VimClient:
         if post_commands is None:
             post_commands = []
 
+        open_in_commands = []
+        if open_in == "split":
+            open_in_commands = ["split"]
+        elif open_in == "vsplit":
+            open_in_commands = ["vsplit"]
+        elif open_in == "tab":
+            open_in_commands = ["tabnew"]
+        elif open_in == "current_window":
+            open_in_commands = []
+        else:
+            raise ValueError(f"'open_in': {open_in} is an invalid value. "
+                             "The valid values are: "
+                             "'tab', 'split', 'vsplit', 'current_window'.")
+
         commands = []
         for filename in files:
-            commands += ["tabnew"]
+            commands += open_in_commands
             if cwd:
                 commands += [self.cmd_escape("lcd", str(cwd))]
 

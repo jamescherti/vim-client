@@ -96,6 +96,33 @@ def cli_init(description: str,
               if vim_type == "vim" else argparse.SUPPRESS),
     )
 
+    arg_parser.add_argument(
+        "-o",
+        "--split",
+        action="store_const",
+        const="split",
+        help="Edit files/directories in stacked horizontal splits.",
+        dest="open_in",
+    )
+
+    arg_parser.add_argument(
+        "-O",
+        "--vsplit",
+        action="store_const",
+        const="vsplit",
+        help="Edit files/directories in side-by-side vertical splits.",
+        dest="open_in",
+    )
+
+    arg_parser.add_argument(
+        "-p",
+        "--tab",
+        action="store_const",
+        const="tab",
+        help="Edit files/directories in separate tabs.",
+        dest="open_in",
+    )
+
     args = arg_parser.parse_args()
 
     if vim_type == "vim" and args.diff:
@@ -154,6 +181,13 @@ def cli_init(description: str,
         vim_client.exec_vim(["--serverlist"])
         sys.exit(0)
 
+    if vim_type == "vimdiff" and len(args.paths) < 2:
+        arg_parser.print_usage()
+        sys.exit(1)
+
+    if not args.open_in:
+        args.open_in = "current_window"
+
     return (vim_client, args)
 
 
@@ -187,6 +221,7 @@ def cli_edit():
     try:
         vim_client.edit(list_paths,
                         cwd=os.getcwd(),
+                        open_in=args.open_in,
                         pre_commands=pre_commands,
                         post_commands=post_commands)
     except VimClientError as err:
@@ -207,10 +242,6 @@ def cli_diff():
         usage="%(prog)s <file1> <file2> [file3]...",
         vim_type="vimdiff",
     )
-
-    if len(args.paths) < 2:
-        args.print_usage()
-        sys.exit(1)
 
     if len(args.paths) > 8:
         print(f"{cmdname}: cannot diff more than 8 files",
@@ -236,6 +267,7 @@ def cli_diff():
         pre_commands += ["call foreground()"]
         vim_client.edit(file1,
                         cwd=os.getcwd(),
+                        open_in=args.open_in,
                         pre_commands=pre_commands,
                         post_commands=diff_commands)
     except VimClientError as err:

@@ -27,14 +27,29 @@ sudo pip install vim-client
 
 ## The 'vim-client-\*' command-line tools
 
-Open files/directories in new tabs:
+Edit a file in the current window/tab:
 ```console
-vim-client-edit file1 file2 file3
+vim-client-edit file1
 ```
 
-Compare up to eight files:
+Edit multiple files/directories in separate tabs:
 ```console
-vim-client-diff file1 file2
+vim-client-edit --tab file1 file2 file3
+```
+
+Edit multiple files/directories in stacked horizontal splits:
+```console
+vim-client-edit --split file1 file2
+```
+
+Edit multiple files/directories in side-by-side vertical splits (To open vertical splits on the right of the current window, use the Vim option `set splitright`):
+```console
+vim-client-edit --vsplit file1 file2
+```
+
+Edit and compare up to eight files in a new tab:
+```console
+vim-client-diff --tab file1 file2
 ```
 
 ## Recommendations
@@ -43,10 +58,10 @@ vim-client-diff file1 file2
 
 It is recommended to add the following aliases to your `~/.bashrc`:
 ```sh
-alias gvim=vim-client-edit
-alias vim=vim-client-edit
-alias vi=vim-client-edit
-alias vimdiff=vim-client-diff
+alias gvim='vim-client-edit --tab'
+alias vim='vim-client-edit --tab'
+alias vi='vim-client-edit --tab'
+alias vimdiff='vim-client-diff --tab'
 ```
 
 ### Start diff mode with vertical splits (vim-client-diff)
@@ -63,7 +78,7 @@ File: `/usr/local/share/applications/vim-client-edit.desktop`
 Name=vim-client-edit
 GenericName=Vim Client Edit
 Comment=Vim Client Edit
-Exec=vim-client-edit %F
+Exec=vim-client-edit --tab %F
 Terminal=false
 Type=Application
 Keywords=Text;editor;
@@ -79,7 +94,7 @@ File: `/usr/local/share/applications/vim-client-diff.desktop`
 Name=vim-client-diff
 GenericName=Vim Client Diff
 Comment=Vim Client Diff
-Exec=vim-client-diff %F
+Exec=vim-client-diff --tab %F
 Terminal=false
 Type=Application
 Keywords=Text;editor;
