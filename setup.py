@@ -10,7 +10,7 @@ LONG_DESCRIPTION = (CURRENT_DIRECTORY / "README.md") \
 
 setup(
     name="vim-client",
-    version="1.0.4",
+    version="1.0.5",
     description=("Connect to Vim server, edit files, evaluate Vim "
                  "expressions, and send commands to Vim."),
     long_description=LONG_DESCRIPTION,
@@ -28,7 +28,7 @@ setup(
         "License :: OSI Approved :: MIT License",
 
         "Topic :: Software Development :: Libraries :: Python Modules",
-        "Topic :: Software Development :: Version Control :: Git",
+        "Topic :: Text Editors",
 
         "Operating System :: Unix",
         "Operating System :: POSIX :: Linux",
