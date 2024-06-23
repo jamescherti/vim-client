@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (c) James Cherti
+# Copyright (C) 2022-2024 James Cherti
 #
 # Distributed under terms of the MIT license.
 #
@@ -32,7 +32,6 @@ from pathlib import Path
 from shutil import which
 from subprocess import CalledProcessError, check_output  # nosec B404
 from typing import List, Union
-
 
 DEFAULT_VIM = ["vim", "gvim"]
 
