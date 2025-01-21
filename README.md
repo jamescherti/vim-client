@@ -11,7 +11,7 @@ It will allow you, for example, to make Vim edit or diff files from outside of V
 
 ## License
 
-Copyright (C) 2022-2024 [James Cherti](https://www.jamescherti.com).
+Copyright (C) 2022-2025 [James Cherti](https://www.jamescherti.com).
 
 Distributed under terms of the MIT license.
 

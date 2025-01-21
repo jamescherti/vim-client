@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2022-2024 James Cherti
+# Copyright (C) 2022-2025 James Cherti
 #
 # Distributed under terms of the MIT license.
 #
