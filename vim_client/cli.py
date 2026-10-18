@@ -41,9 +41,9 @@ from typing import Tuple
 from . import DEFAULT_VIM, VimClient, VimClientError
 
 
-def cli_init(description: str,
-             usage: str,
-             vim_type: str) -> Tuple[VimClient, Namespace]:
+def cli_init(
+    description: str, usage: str, vim_type: str
+) -> Tuple[VimClient, Namespace]:
     arg_parser = ArgumentParser(
         description=description,
         usage=usage,
@@ -60,12 +60,14 @@ def cli_init(description: str,
     arg_parser.add_argument(
         "--servername",
         default="",
-        help=("This option allows specifying the Vim server to connect to. "
-              "If no value is provided, an attempt will be made to connect "
-              "to any available Vim servers. "
-              "If no Vim server is currently listening, a new instance of Vim "
-              "will be launched with the '--servername SERVERNAME' option, "
-              "which will start a new Vim server."),
+        help=(
+            "This option allows specifying the Vim server to connect to. "
+            "If no value is provided, an attempt will be made to connect "
+            "to any available Vim servers. "
+            "If no Vim server is currently listening, a new instance of Vim "
+            "will be launched with the '--servername SERVERNAME' option, "
+            "which will start a new Vim server."
+        ),
     )
 
     arg_parser.add_argument(
@@ -92,8 +94,11 @@ def cli_init(description: str,
         "--diff",
         default=False,
         action="store_true",
-        help=("Start in diff mode. Works like 'vim-client-diff'."
-              if vim_type == "vim" else argparse.SUPPRESS),
+        help=(
+            "Start in diff mode. Works like 'vim-client-diff'."
+            if vim_type == "vim"
+            else argparse.SUPPRESS
+        ),
     )
 
     arg_parser.add_argument(
@@ -129,8 +134,9 @@ def cli_init(description: str,
         cli_diff()
         sys.exit(0)
 
-    vim_server_name = ("^" + re.escape(args.servername) + "$"
-                       if args.servername else ".*")
+    vim_server_name = (
+        "^" + re.escape(args.servername) + "$" if args.servername else ".*"
+    )
     vim_client = None
     try:
         vim_client = VimClient(
@@ -159,20 +165,19 @@ def cli_init(description: str,
                 break
 
         if not vim_bin_path:
-            print(f"Error: Command not found: {vim_cmd}",
-                  file=sys.stderr)
+            print(f"Error: Command not found: {vim_cmd}", file=sys.stderr)
             sys.exit(1)
 
         try:
-            vim_args = ([vim_bin_path] +
-                        ((["--servername"] + [args.servername])
-                         if args.servername else []) + args.paths)
-            print(f"[RUN] {subprocess.list2cmdline(vim_args)}",
-                  file=sys.stderr)
+            vim_args = (
+                [vim_bin_path]
+                + ((["--servername"] + [args.servername]) if args.servername else [])
+                + args.paths
+            )
+            print(f"[RUN] {subprocess.list2cmdline(vim_args)}", file=sys.stderr)
             os.execl(vim_bin_path, *(vim_args))
         except OSError as err:
-            print(f"Error: Could not execute '{vim_cmd}': {err}",
-                  file=sys.stderr)
+            print(f"Error: Could not execute '{vim_cmd}': {err}", file=sys.stderr)
             sys.exit(1)
 
         sys.exit(1)
@@ -199,8 +204,7 @@ def cli_edit():
     """
     cmdname = os.path.basename(sys.argv[0])
     vim_client, args = cli_init(
-        description=("Connect to a Vim server and make it edit "
-                     "files/directories."),
+        description=("Connect to a Vim server and make it edit files/directories."),
         usage="%(prog)s [files_or_dirs]",
         vim_type="vim",
     )
@@ -219,11 +223,13 @@ def cli_edit():
 
     # Edit the file/directory
     try:
-        vim_client.edit(list_paths,
-                        cwd=os.getcwd(),
-                        open_in=args.open_in,
-                        pre_commands=pre_commands,
-                        post_commands=post_commands)
+        vim_client.edit(
+            list_paths,
+            cwd=os.getcwd(),
+            open_in=args.open_in,
+            pre_commands=pre_commands,
+            post_commands=post_commands,
+        )
     except VimClientError as err:
         print(f"{cmdname}: fatal: {err}.", file=sys.stderr)
         sys.exit(1)
@@ -237,21 +243,18 @@ def cli_diff():
     """
     cmdname = os.path.basename(sys.argv[0])
     vim_client, args = cli_init(
-        description=("Connect to a Vim server and show the differences "
-                     "between files."),
+        description=("Connect to a Vim server and show the differences between files."),
         usage="%(prog)s <file1> <file2> [file3]...",
         vim_type="vimdiff",
     )
 
     if len(args.paths) > 8:
-        print(f"{cmdname}: cannot diff more than 8 files",
-              file=sys.stderr)
+        print(f"{cmdname}: cannot diff more than 8 files", file=sys.stderr)
         sys.exit(1)
 
     for filename in args.paths:
         if not os.path.isfile(filename):
-            print(f"{cmdname}: {filename}: no such file or directory",
-                  file=sys.stderr)
+            print(f"{cmdname}: {filename}: no such file or directory", file=sys.stderr)
             sys.exit(1)
 
     try:
@@ -265,11 +268,13 @@ def cli_diff():
             )
 
         pre_commands += ["call foreground()"]
-        vim_client.edit(file1,
-                        cwd=os.getcwd(),
-                        open_in=args.open_in,
-                        pre_commands=pre_commands,
-                        post_commands=diff_commands)
+        vim_client.edit(
+            file1,
+            cwd=os.getcwd(),
+            open_in=args.open_in,
+            pre_commands=pre_commands,
+            post_commands=diff_commands,
+        )
     except VimClientError as err:
         print(f"{cmdname}: fatal: {err}.", file=sys.stderr)
         sys.exit(1)

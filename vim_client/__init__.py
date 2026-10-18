@@ -73,9 +73,7 @@ class VimClient:
                 self.vim_bin = bin_path
                 return
 
-        raise VimClientError(
-            f"The Vim command was not found: {list_vim_commands}"
-        )
+        raise VimClientError(f"The Vim command was not found: {list_vim_commands}")
 
     def _find_vim_server_name(self, regex: str):
         vim_server_list = self._vim_server_list()
@@ -109,12 +107,14 @@ class VimClient:
 
         return result
 
-    def edit(self,
-             files: Union[List[str], str, List[Path], Path],
-             cwd: Union[Path, str, None] = None,
-             open_in: str = "current_window",
-             pre_commands: Union[List[str], None] = None,
-             post_commands: Union[List[str], None] = None):
+    def edit(
+        self,
+        files: Union[List[str], str, List[Path], Path],
+        cwd: Union[Path, str, None] = None,
+        open_in: str = "current_window",
+        pre_commands: Union[List[str], None] = None,
+        post_commands: Union[List[str], None] = None,
+    ):
         """Make Vim server edit files/directories.
 
         Parameters:
@@ -160,9 +160,11 @@ class VimClient:
         elif open_in == "current_window":
             open_in_commands = []
         else:
-            raise ValueError(f"'open_in': {open_in} is an invalid value. "
-                             "The valid values are: "
-                             "'tab', 'split', 'vsplit', 'current_window'.")
+            raise ValueError(
+                f"'open_in': {open_in} is an invalid value. "
+                "The valid values are: "
+                "'tab', 'split', 'vsplit', 'current_window'."
+            )
 
         commands = []
         for filename in files:
@@ -181,8 +183,9 @@ class VimClient:
     def ping(self):
         """Check if Vim is listening to commands."""
         if self.expr("1024")[0].strip() != "1024":
-            raise VimClientError(f"The Vim server '{self.vim_server_name}' "
-                                 "is not responding")
+            raise VimClientError(
+                f"The Vim server '{self.vim_server_name}' is not responding"
+            )
 
     def expr(self, expression: str) -> List[str]:
         """Send 'expression' to the Vim server and return its result."""
@@ -195,8 +198,10 @@ class VimClient:
             pass
 
         if not result:
-            err_str = (f"The Vim server '{self.vim_server_name}' has not "
-                       f"responded to the expression: {expression}")
+            err_str = (
+                f"The Vim server '{self.vim_server_name}' has not "
+                f"responded to the expression: {expression}"
+            )
             raise VimClientError(err_str)
 
         return result
@@ -223,9 +228,7 @@ class VimClient:
             send = True
 
         if send:
-            self.expr(
-                f"""execute('{vim_commands.replace("'", "''")}')"""
-            )
+            self.expr(f"""execute('{vim_commands.replace("'", "''")}')""")
 
     def exec_vim(self, args: List[str]):
         """Execute Vim, replacing the current process."""
@@ -235,8 +238,7 @@ class VimClient:
     def run_vim_remote_get_output(self, args: List[str]) -> List[str]:
         """Execute 'vim --servername <server-name> <args>'."""
         vim_args = self._build_vim_remote_cmd_args(args=args)
-        return check_output([self.vim_bin] + vim_args) \
-            .decode().splitlines()
+        return check_output([self.vim_bin] + vim_args).decode().splitlines()
 
     def _build_vim_remote_cmd_args(self, args: List[str]) -> List[str]:
         vim_args: List[str] = []
