@@ -43,7 +43,7 @@ class VimClientError(Exception):
 class VimClient:
     """Communicate with Vim via 'vim --remote*' command-line options."""
 
-    def __init__(self, server_name_regex: str, list_vim_bin: List[str]):
+    def __init__(self, server_name_regex: str, list_vim_bin: list[str]):
         """Init VimClient.
 
         :server_name_regex: Regex that is used to find the Vim server.
@@ -64,7 +64,7 @@ class VimClient:
         arg = self._fnameescape(arg)
         return f"{cmd} {arg}"
 
-    def _find_vim_bin(self, list_vim_bin: List[str]):
+    def _find_vim_bin(self, list_vim_bin: list[str]):
         list_vim_commands = list_vim_bin if list_vim_bin else DEFAULT_VIM
 
         for bin_name in list_vim_commands:
@@ -93,8 +93,8 @@ class VimClient:
                 f"returned an empty list: '{self.vim_bin} --serverlist')"
             )
 
-    def _vim_server_list(self) -> List[str]:
-        result: List[str] = []
+    def _vim_server_list(self) -> list[str]:
+        result: list[str] = []
         try:
             cmd_output = check_output([self.vim_bin, "--serverlist"])
         except CalledProcessError:
@@ -109,16 +109,15 @@ class VimClient:
 
     def edit(
         self,
-        files: Union[List[str], str, List[Path], Path],
-        cwd: Union[Path, str, None] = None,
+        files: list[str] | str | list[Path] | Path,
+        cwd: Path | str | None = None,
         open_in: str = "current_window",
-        pre_commands: Union[List[str], None] = None,
-        post_commands: Union[List[str], None] = None,
+        pre_commands: list[str] | None = None,
+        post_commands: list[str] | None = None,
     ):
         """Make Vim server edit files/directories.
 
         Parameters:
-
         :files: List of files/directories.
 
         :cwd: Current working directory (default: current directory).
@@ -187,9 +186,9 @@ class VimClient:
                 f"The Vim server '{self.vim_server_name}' is not responding"
             )
 
-    def expr(self, expression: str) -> List[str]:
+    def expr(self, expression: str) -> list[str]:
         """Send 'expression' to the Vim server and return its result."""
-        result: List[str] = []
+        result: list[str] = []
         try:
             result = self.run_vim_remote_get_output(
                 ["--remote-expr"] + [expression],
@@ -206,7 +205,7 @@ class VimClient:
 
         return result
 
-    def send_commands(self, commands: Union[str, List[str]]):
+    def send_commands(self, commands: str | list[str]):
         """Send commands to the Vim server.
 
         :commands: List of Vim commands.
@@ -230,18 +229,18 @@ class VimClient:
         if send:
             self.expr(f"""execute('{vim_commands.replace("'", "''")}')""")
 
-    def exec_vim(self, args: List[str]):
+    def exec_vim(self, args: list[str]):
         """Execute Vim, replacing the current process."""
         os.execl(self.vim_bin, *([self.vim_bin] + args))
         sys.exit(1)
 
-    def run_vim_remote_get_output(self, args: List[str]) -> List[str]:
+    def run_vim_remote_get_output(self, args: list[str]) -> list[str]:
         """Execute 'vim --servername <server-name> <args>'."""
         vim_args = self._build_vim_remote_cmd_args(args=args)
         return check_output([self.vim_bin] + vim_args).decode().splitlines()
 
-    def _build_vim_remote_cmd_args(self, args: List[str]) -> List[str]:
-        vim_args: List[str] = []
+    def _build_vim_remote_cmd_args(self, args: list[str]) -> list[str]:
+        vim_args: list[str] = []
         vim_args += ["--servername", self.vim_server_name]
         vim_args += deepcopy(args)
         return vim_args
