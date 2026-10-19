@@ -36,14 +36,13 @@ import shutil
 import subprocess
 import sys
 from argparse import ArgumentParser, Namespace
-from typing import Tuple
 
 from . import DEFAULT_VIM, VimClient, VimClientError
 
 
 def cli_init(
     description: str, usage: str, vim_type: str
-) -> Tuple[VimClient, Namespace]:
+) -> tuple[VimClient, Namespace]:
     arg_parser = ArgumentParser(
         description=description,
         usage=usage,
