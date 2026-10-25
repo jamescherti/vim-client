@@ -1,6 +1,9 @@
 # vim-client - send commands to the Vim editor
 ![License](https://img.shields.io/github/license/jamescherti/vim-client)
 
+- Author: James Cherti <[https://www.jamescherti.com/](https://www.jamescherti.com/)>
+- License: MIT
+
 The **[vim-client](https://github.com/jamescherti/vim-client)** **command-line tools `vim-client-edit`, `vim-client-diff`** and the **Python module `vim_client`** will allow you to connect to a Vim server and make it:
 - Edit files or directories in new tabs,
 - Compare files (similar to vimdiff),
